@@ -1,7 +1,9 @@
 import {PrismaClient} from '@prisma/client'
 import {Kafka} from 'kafkajs'
-
+import express from 'express';
 const TOPIC_NAME = 'zap-events'
+
+const app = express();
 
 const kafka = new Kafka({
     clientId: "outbox-processor",
@@ -26,6 +28,10 @@ async function main(){
             take:10
         })
         console.log(pendingRows)
+        if (pendingRows.length === 0) {
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+}
         await producer.send({
             topic: TOPIC_NAME,
             messages: pendingRows.map((r:any)=>{
@@ -46,3 +52,5 @@ async function main(){
 }
 
 main();
+app.get('/health', (req, res) => res.send('ok'))
+app.listen(process.env.PORT || 3000)

@@ -3,8 +3,10 @@ import { PrismaClient } from '@prisma/client'
 import type { JsonObject } from '@prisma/client/runtime/library';
 import { parse } from './parser.js';
 import { sendEmail } from './email.js';
+import express from 'express'
 import { sendSol } from './solana.js';
 const TOPIC_NAME = "zap-events"
+const app = express();
 const kafka = new Kafka({
     clientId: 'kafka-consumer',
     brokers: [process.env.KAFKA_BROKER!],
@@ -111,3 +113,5 @@ async function main(){
     })  
 }
 main().catch(console.error);
+app.get('/health', (req, res) => res.send('ok'))
+app.listen(process.env.PORT || 3000)
