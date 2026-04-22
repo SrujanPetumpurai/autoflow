@@ -6,16 +6,17 @@ const TOPIC_NAME = 'zap-events'
 const app = express();
 
 const kafka = new Kafka({
-    clientId: "outbox-processor",
+    clientId: 'outbox-processor',
     brokers: [process.env.KAFKA_BROKER!],
-    ssl: true,
+    ssl: {
+        rejectUnauthorized: false
+    },
     sasl: {
         mechanism: 'scram-sha-256',
         username: process.env.KAFKA_USERNAME!,
         password: process.env.KAFKA_PASSWORD!,
     }
 })
-
 const client = new PrismaClient()
 
 async function main(){

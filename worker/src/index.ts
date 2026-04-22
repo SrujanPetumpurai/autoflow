@@ -10,7 +10,9 @@ const app = express();
 const kafka = new Kafka({
     clientId: 'kafka-consumer',
     brokers: [process.env.KAFKA_BROKER!],
-    ssl: true,
+    ssl: {
+        rejectUnauthorized: false
+    },
     sasl: {
         mechanism: 'scram-sha-256',
         username: process.env.KAFKA_USERNAME!,
