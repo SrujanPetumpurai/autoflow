@@ -8,6 +8,8 @@ const app = express();
 const kafka = new Kafka({
     clientId: 'outbox-processor',
     brokers: [process.env.KAFKA_BROKER!],
+    connectionTimeout: 10000,  
+    requestTimeout: 30000,   
     ssl: {
         rejectUnauthorized: false
     },
@@ -22,6 +24,13 @@ const client = new PrismaClient()
 async function main(){
     const producer = kafka.producer();
     await producer.connect();
+
+    const admin = kafka.admin();
+    await admin.connect();
+    const topics = await admin.listTopics();
+    console.log('Available topics:', topics);
+    await admin.disconnect();
+
     console.log("inside process main function")
     while(1){
         const pendingRows = await client.zapRunOutbox.findMany({

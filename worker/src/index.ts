@@ -10,6 +10,8 @@ const app = express();
 const kafka = new Kafka({
     clientId: 'kafka-consumer',
     brokers: [process.env.KAFKA_BROKER!],
+    connectionTimeout: 10000,  
+    requestTimeout: 30000,     
     ssl: {
         rejectUnauthorized: false
     },
@@ -21,7 +23,13 @@ const kafka = new Kafka({
 })
 const prismaClient = new PrismaClient();
 async function main(){
-    const consumer = kafka.consumer({groupId:'main-woker'})
+    const admin = kafka.admin();
+    await admin.connect();
+    const topics = await admin.listTopics();
+    console.log('Available topics:', topics);
+    await admin.disconnect();
+
+    const consumer = kafka.consumer({ groupId: 'main-worker' })
     const producer = kafka.producer();
     await producer.connect();
     await consumer.connect();
@@ -62,9 +70,14 @@ async function main(){
             const userId = zapRunDetails?.zap.userId
             const currentAction = zapRunDetails?.zap.actions.find(x => x.sortingOrder===stage)
             if(!currentAction){
-                console.log('currentAction not found')
-                return
-            }
+                    console.log('currentAction not found')
+                    await consumer.commitOffsets([{
+                        topic: TOPIC_NAME,
+                        partition,
+                        offset: (parseInt(message.offset) + 1).toString()
+                    }])
+                    return
+                }
 
             const zapRunMetadata = zapRunDetails?.metadata
             console.log(zapRunMetadata)
