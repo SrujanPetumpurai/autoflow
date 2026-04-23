@@ -13,7 +13,8 @@ router.get("/test",(req,res)=>{
     return res.json({message:"test working"})
 })
 router.post("/signup", async (req, res) => {
-    
+        console.log("🔥 SIGNUP HIT"); // ← add this as literally the first line
+
     const body = req.body;
 
     const parsedData = SignupSchema.safeParse(body);
