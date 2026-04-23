@@ -15,41 +15,38 @@ router.post("/signup", async (req, res) => {
 
     if (!parsedData.success) {
         console.log(parsedData.error);
-        return res.status(411).json({
-            message: "Incorrect inputs"
-        })
+        return res.status(411).json({ message: "Incorrect inputs" });
     }
 
-    const userExists = await prisma.user.findFirst({
-        where: {
-            email: parsedData.data.username
-        }
-    });
+    try {
+        const userExists = await prisma.user.findFirst({  // ← moved inside
+            where: { email: parsedData.data.username }
+        });
 
-    if (userExists) {
-        return res.status(403).json({
-            message: "User already exists"
-        })
-    }
-try{
-    const hashedPassword = await bcrypt.hash(parsedData.data.password,saltRounds)
-    await prisma.user.create({
-        data: {
-            email: parsedData.data.username,
-            password: hashedPassword,
-            name: parsedData.data.name
+        if (userExists) {
+            return res.status(403).json({ message: "User already exists" });
         }
-    })
-    return res.json({
-        message: "Please verify your account by checking your email"
-    });
-}catch(e){
-     return res.json({
-        message:"Error while creating account",e
-     })
-}
-   
-})
+
+        const hashedPassword = await bcrypt.hash(parsedData.data.password, saltRounds);
+        
+        await prisma.user.create({
+            data: {
+                email: parsedData.data.username,
+                password: hashedPassword,
+                name: parsedData.data.name
+            }
+        });
+
+        return res.json({ message: "Please verify your account by checking your email" });
+
+    } catch(e) {
+        console.error("Signup error:", e); 
+        return res.status(500).json({
+            message: "Error while creating account",
+            error: (e as Error).message     
+        });
+    }
+});
 
 router.post("/signin", async (req, res) => {
     const body = req.body;
