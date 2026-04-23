@@ -12,6 +12,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
+    "https://hoppscotch.io",
   process.env.FRONTEND_URL!,
 ];
 app.use(express.json());
@@ -36,7 +37,7 @@ app.use('/api/v1/connectedAccount',connectedAccount)
 app.use("/api/v1/action", actionRouter);
 app.use("/api/v1/google",googleRouter)
 app.use("/api/v1/gmail",gmailRouter)
-  
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT);
 console.log(`Listening on ${PORT}`);
