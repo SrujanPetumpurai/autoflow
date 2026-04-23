@@ -13,7 +13,9 @@ router.get("/test",(req,res)=>{
     return res.json({message:"test working"})
 })
 router.post("/signup", async (req, res) => {
+    
     const body = req.body;
+
     const parsedData = SignupSchema.safeParse(body);
 
     if (!parsedData.success) {
