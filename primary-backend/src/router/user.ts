@@ -9,6 +9,9 @@ import bcrypt from "bcrypt";
 
 const router = Router();
 const saltRounds = 10;
+router.get("/test",(req,res)=>{
+    return res.json({message:"test working"})
+})
 router.post("/signup", async (req, res) => {
     const body = req.body;
     const parsedData = SignupSchema.safeParse(body);
@@ -19,7 +22,7 @@ router.post("/signup", async (req, res) => {
     }
 
     try {
-        const userExists = await prisma.user.findFirst({  // ← moved inside
+        const userExists = await prisma.user.findFirst({  
             where: { email: parsedData.data.username }
         });
 
