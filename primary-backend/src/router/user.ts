@@ -10,6 +10,7 @@ import bcrypt from "bcrypt";
 const router = Router();
 const saltRounds = 10;
 router.get("/test",(req,res)=>{
+    console.log("Test router hit")
     return res.json({message:"test working"})
 })
 router.post("/signup", async (req, res) => {
