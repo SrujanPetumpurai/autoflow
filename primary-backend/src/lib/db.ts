@@ -1,4 +1,4 @@
 import { PrismaClient } from '@prisma/client';
 
-// Create a singleton instance to prevent exhausting database connections
 export const prisma = new PrismaClient();
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "SET" : "MISSING ❌");
