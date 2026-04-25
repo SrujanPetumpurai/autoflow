@@ -35,6 +35,16 @@ async function runWorker() {
 
     await consumer.subscribe({ topic: TOPIC_NAME, fromBeginning: true })
 
+    // Graceful shutdown
+    const shutdown = async () => {
+        console.log("Shutting down gracefully...")
+        await consumer.disconnect()
+        await producer.disconnect()
+        process.exit(0)
+    }
+    process.on('SIGTERM', shutdown)
+    process.on('SIGINT', shutdown)
+
     await consumer.run({
         autoCommit: false,
         eachMessage: async ({ topic, partition, message }) => {
@@ -56,7 +66,15 @@ async function runWorker() {
                 return
             }
 
-            const parsedMessage = JSON.parse(message.value.toString())
+            let parsedMessage: any
+            try {
+                parsedMessage = JSON.parse(message.value.toString())
+            } catch (e) {
+                console.error("Failed to parse message JSON, skipping:", e)
+                await commit()
+                return
+            }
+
             const zapRunId: string = parsedMessage.zapRunId
             const stage: number = parsedMessage.stage
 
@@ -104,8 +122,8 @@ async function runWorker() {
                         return
                     }
 
-                    const to = parse(emailTemplate, metadata )
-                    const body = parse(bodyTemplate, metadata )
+                    const to = parse(emailTemplate, metadata)
+                    const body = parse(bodyTemplate, metadata)
 
                     console.log(`Sending email to: ${to}`)
                     await sendEmail(to, body, userId)
@@ -115,8 +133,8 @@ async function runWorker() {
                     const amountTemplate = (currentAction.metadata as JsonObject)?.amount as string
                     const addressTemplate = (currentAction.metadata as JsonObject)?.address as string
 
-                    const amount = parse(amountTemplate, metadata )
-                    const address = parse(addressTemplate, metadata )
+                    const amount = parse(amountTemplate, metadata)
+                    const address = parse(addressTemplate, metadata)
 
                     console.log(`Sending ${amount} SOL to ${address}`)
                     await sendSol(amount, address)
@@ -143,11 +161,11 @@ async function runWorker() {
 
             } catch (e) {
                 console.error(`Error processing stage ${stage} for zapRun ${zapRunId}:`, e)
-            }finally {
-                await consumer.disconnect()  
-                await producer.disconnect()
+                // Don't commit on error — message will be retried on next restart
+                // If you want to skip bad messages instead, add: await commit()
             }
-                }
+            // ✅ No finally/disconnect here
+        }
     })
 }
 
