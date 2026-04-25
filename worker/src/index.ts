@@ -143,8 +143,11 @@ async function runWorker() {
 
             } catch (e) {
                 console.error(`Error processing stage ${stage} for zapRun ${zapRunId}:`, e)
+            }finally {
+                await consumer.disconnect()  
+                await producer.disconnect()
             }
-        }
+                }
     })
 }
 
