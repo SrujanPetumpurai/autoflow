@@ -1,17 +1,20 @@
-import {Kafka} from 'kafkajs'
+import { Kafka } from 'kafkajs'
 import { PrismaClient } from '@prisma/client'
 import type { JsonObject } from '@prisma/client/runtime/library';
 import { parse } from './parser.js';
 import { sendEmail } from './email.js';
-import express from 'express'
 import { sendSol } from './solana.js';
+import express from 'express'
+
 const TOPIC_NAME = "zap-events"
 const app = express();
+const prismaClient = new PrismaClient();
+
 const kafka = new Kafka({
     clientId: 'kafka-consumer',
     brokers: [process.env.KAFKA_BROKER!],
-    connectionTimeout: 10000,  
-    requestTimeout: 30000,     
+    connectionTimeout: 10000,
+    requestTimeout: 30000,
     ssl: {
         rejectUnauthorized: false
     },
@@ -21,112 +24,149 @@ const kafka = new Kafka({
         password: process.env.KAFKA_PASSWORD!,
     }
 })
-const prismaClient = new PrismaClient();
-async function main(){
-    const admin = kafka.admin();
-    await admin.connect();
-    const topics = await admin.listTopics();
-    console.log('Available topics:', topics);
-    await admin.disconnect();
 
+async function runWorker() {
     const consumer = kafka.consumer({ groupId: 'main-worker' })
     const producer = kafka.producer();
+
     await producer.connect();
     await consumer.connect();
+    console.log("Kafka consumer and producer connected")
 
-    await consumer.subscribe({
-        topic:TOPIC_NAME,fromBeginning:true})
+    await consumer.subscribe({ topic: TOPIC_NAME, fromBeginning: true })
+
     await consumer.run({
-        autoCommit:false,
-        eachMessage:async({topic,partition,message})=>{
+        autoCommit: false,
+        eachMessage: async ({ topic, partition, message }) => {
             console.log({
                 partition,
-                offset:message.offset,
-                value:message.value?.toString(),
+                offset: message.offset,
+                value: message.value?.toString(),
             })
-            if(!message.value?.toString()){
-                return console.log("No message.value in kafka queue");
-            }
-            const parsedMessage = JSON.parse(message.value?.toString());
-            const zapRunId = parsedMessage.zapRunId;
 
-            const stage = parsedMessage.stage
-            const zapRunDetails = await prismaClient.zapRun.findFirst({
-                where:{
-                    id:zapRunId,
-                },
-                include:{
-                    zap:{
-                        include:{
-                            actions:{
-                                include:{
-                                    type:true
-                                }
+            // Commit helper to avoid repetition
+            const commit = () => consumer.commitOffsets([{
+                topic: TOPIC_NAME,
+                partition,
+                offset: (parseInt(message.offset) + 1).toString()
+            }])
+
+            if (!message.value?.toString()) {
+                console.log("Empty message, skipping")
+                await commit()
+                return
+            }
+
+            const parsedMessage = JSON.parse(message.value.toString())
+            const zapRunId: string = parsedMessage.zapRunId
+            const stage: number = parsedMessage.stage
+
+            // Fetch zapRun with all actions sorted
+            const zapRun = await prismaClient.zapRun.findFirst({
+                where: { id: zapRunId },
+                include: {
+                    zap: {
+                        include: {
+                            actions: {
+                                include: { type: true },
+                                orderBy: { sortingOrder: 'asc' }
                             }
                         }
                     }
                 }
             })
-            const userId = zapRunDetails?.zap.userId
-            const currentAction = zapRunDetails?.zap.actions.find(x => x.sortingOrder===stage)
-            if(!currentAction){
-                    console.log('currentAction not found')
-                    await consumer.commitOffsets([{
-                        topic: TOPIC_NAME,
-                        partition,
-                        offset: (parseInt(message.offset) + 1).toString()
-                    }])
-                    return
-                }
 
-            const zapRunMetadata = zapRunDetails?.metadata
-            console.log(zapRunMetadata)
-            if(currentAction.actionId === 'email'){
-                const emailTemplate = (currentAction.metadata as JsonObject)?.email as string;
-                const bodyTemplate = (currentAction.metadata as JsonObject)?.body as string;
-
-                if(!emailTemplate || !bodyTemplate){
-                    console.log("Missing email or body template in action metadata");
-                    return;
-                }
-                const templateContext = {data:zapRunMetadata}
-                const to = parse(emailTemplate, {templateContext });
-                const body = parse(bodyTemplate, { templateContext });
-                console.log(`Sending email ${to} with body ${body}`)
-                await sendEmail(to, body, userId);
-                }
-            if(currentAction.actionId ==='send-sol'){
-                 const amount = parse((currentAction.metadata as JsonObject)?.amount as string,{comment:zapRunMetadata});
-                const address = parse((currentAction.metadata as JsonObject)?.address as string, zapRunMetadata);
-                console.log(`Sending amount ${amount} to ${address}`)
-                await sendSol(amount,address);
+            if (!zapRun) {
+                console.log(`ZapRun ${zapRunId} not found, skipping`)
+                await commit()
+                return
             }
-            const lastStage = (zapRunDetails?.zap.actions?.length || 1) - 1; 
-          console.log(lastStage);
-          console.log(stage);
-          if (lastStage !== stage) {
-            console.log("pushing back to the queue")
-            await producer.send({
-              topic: TOPIC_NAME,
-              messages: [{
-                value: JSON.stringify({
-                  stage: stage + 1,
-                  zapRunId
-                })
-              }]
-            })  
-          }
-          console.log("processing done");
-          await consumer.commitOffsets([{
-            topic: TOPIC_NAME,
-            partition: partition,
-            offset: (parseInt(message.offset) + 1).toString() 
-          }])
 
-                        
+            const currentAction = zapRun.zap.actions.find(x => x.sortingOrder === stage)
+
+            if (!currentAction) {
+                console.log(`No action found for stage ${stage}, skipping`)
+                await commit()
+                return
+            }
+
+            const metadata = zapRun.metadata as JsonObject
+            const userId = zapRun.zap.userId
+
+            console.log(`Executing stage ${stage}, actionId: ${currentAction.actionId}`)
+
+            try {
+                if (currentAction.actionId === 'email') {
+                    const emailTemplate = (currentAction.metadata as JsonObject)?.email as string
+                    const bodyTemplate = (currentAction.metadata as JsonObject)?.body as string
+
+                    if (!emailTemplate || !bodyTemplate) {
+                        console.log("Missing email or body template, skipping")
+                        await commit()
+                        return
+                    }
+
+                    const templateContext = { data: metadata }
+                    const to = parse(emailTemplate, { templateContext })
+                    const body = parse(bodyTemplate, { templateContext })
+
+                    console.log(`Sending email to: ${to}`)
+                    await sendEmail(to, body, userId)
+                }
+
+                if (currentAction.actionId === 'send-sol') {
+                    const amountTemplate = (currentAction.metadata as JsonObject)?.amount as string
+                    const addressTemplate = (currentAction.metadata as JsonObject)?.address as string
+
+                    const amount = parse(amountTemplate, { templateContext: { data: metadata } })
+                    const address = parse(addressTemplate, { templateContext: { data: metadata } })
+
+                    console.log(`Sending ${amount} SOL to ${address}`)
+                    await sendSol(amount, address)
+                }
+
+                // If more stages remain, push next stage back to Kafka
+                const lastStage = zapRun.zap.actions.length - 1
+                if (stage < lastStage) {
+                    console.log(`Stage ${stage} done, pushing stage ${stage + 1} to queue`)
+                    await producer.send({
+                        topic: TOPIC_NAME,
+                        messages: [{
+                            value: JSON.stringify({
+                                zapRunId,
+                                stage: stage + 1
+                            })
+                        }]
+                    })
+                } else {
+                    console.log(`All ${lastStage + 1} stages completed for zapRun ${zapRunId}`)
+                }
+
+                await commit()
+                console.log(`Stage ${stage} committed`)
+
+            } catch (e) {
+                console.error(`Error processing stage ${stage} for zapRun ${zapRunId}:`, e)
+                // Don't commit — message will be retried on restart
+            }
         }
-    })  
+    })
 }
-main().catch(console.error);
+
+async function main() {
+    while (true) {
+        try {
+            await runWorker()
+        } catch (e) {
+            console.error("Worker crashed, restarting in 5s:", e)
+            await new Promise(r => setTimeout(r, 5000))
+        }
+    }
+}
+
+main().catch(console.error)
+
 app.get('/health', (req, res) => res.send('ok'))
-app.listen(process.env.PORT || 3000)
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Worker health check on port ${process.env.PORT || 3000}`)
+})
