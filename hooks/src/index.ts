@@ -53,9 +53,8 @@
             message: "Webhook received"
         })
         }catch(e){
-            res.json({
-                message:"Unable to trigger the hook"
-            })
+            console.error("Transaction failed:", e)
+            res.status(500).json({ message: "Unable to trigger the hook" })
         }
         
     })
