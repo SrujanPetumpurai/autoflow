@@ -44,7 +44,6 @@ async function runWorker() {
                 value: message.value?.toString(),
             })
 
-            // Commit helper to avoid repetition
             const commit = () => consumer.commitOffsets([{
                 topic: TOPIC_NAME,
                 partition,
@@ -61,7 +60,6 @@ async function runWorker() {
             const zapRunId: string = parsedMessage.zapRunId
             const stage: number = parsedMessage.stage
 
-            // Fetch zapRun with all actions sorted
             const zapRun = await prismaClient.zapRun.findFirst({
                 where: { id: zapRunId },
                 include: {
@@ -106,9 +104,8 @@ async function runWorker() {
                         return
                     }
 
-                    const templateContext = { data: metadata }
-                    const to = parse(emailTemplate, { templateContext })
-                    const body = parse(bodyTemplate, { templateContext })
+                    const to = parse(emailTemplate, metadata )
+                    const body = parse(bodyTemplate, metadata )
 
                     console.log(`Sending email to: ${to}`)
                     await sendEmail(to, body, userId)
@@ -118,14 +115,13 @@ async function runWorker() {
                     const amountTemplate = (currentAction.metadata as JsonObject)?.amount as string
                     const addressTemplate = (currentAction.metadata as JsonObject)?.address as string
 
-                    const amount = parse(amountTemplate, { templateContext: { data: metadata } })
-                    const address = parse(addressTemplate, { templateContext: { data: metadata } })
+                    const amount = parse(amountTemplate, metadata )
+                    const address = parse(addressTemplate, metadata )
 
                     console.log(`Sending ${amount} SOL to ${address}`)
                     await sendSol(amount, address)
                 }
 
-                // If more stages remain, push next stage back to Kafka
                 const lastStage = zapRun.zap.actions.length - 1
                 if (stage < lastStage) {
                     console.log(`Stage ${stage} done, pushing stage ${stage + 1} to queue`)
@@ -147,7 +143,6 @@ async function runWorker() {
 
             } catch (e) {
                 console.error(`Error processing stage ${stage} for zapRun ${zapRunId}:`, e)
-                // Don't commit — message will be retried on restart
             }
         }
     })
