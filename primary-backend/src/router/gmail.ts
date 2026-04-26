@@ -7,10 +7,8 @@ const router = Router();
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'https://zapier-clone-rho.vercel.app/api/v1/gmail/callback' 
+  'https://zapier-clone.onrender.com/api/v1/gmail/callback' 
 );
-console.log("Env variables",process.env.GOOGLE_CLIENT_ID)
-console.log("ABove me should be env variables")
 
 const SCOPES = ['https://www.googleapis.com/auth/gmail.send'];
 
