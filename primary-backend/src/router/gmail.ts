@@ -7,7 +7,7 @@ const router = Router();
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'http://localhost:3000/api/v1/gmail/callback' 
+  'https://zapier-clone-rho.vercel.app/api/v1/gmail/callback' 
 );
 console.log("Env variables",process.env.GOOGLE_CLIENT_ID)
 console.log("ABove me should be env variables")
@@ -72,7 +72,7 @@ router.get('/callback',async(req,res)=>{
                 }
             })
             return(
-                res.redirect('http://localhost:4000/zap/create') 
+                res.redirect('https://zapier-clone-rho.vercel.app/zap/create') 
         )
         }catch(e){
             console.error(e);
