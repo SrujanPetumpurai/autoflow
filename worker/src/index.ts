@@ -170,13 +170,11 @@ async function runWorker() {
 }
 
 async function main() {
-    while (true) {
-        try {
-            await runWorker()
-        } catch (e) {
-            console.error("Worker crashed, restarting in 5s:", e)
-            await new Promise(r => setTimeout(r, 5000))
-        }
+    try {
+        await runWorker()
+    } catch (e) {
+        console.error("Worker failed to start:", e)
+        process.exit(1)
     }
 }
 
