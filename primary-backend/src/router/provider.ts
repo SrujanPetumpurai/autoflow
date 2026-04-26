@@ -6,7 +6,7 @@ const router = Router();
 router.get('/', authMiddleware, async (req, res) => {
   try {
     //@ts-ignore
-    const userId = req.userId;
+    const userId = req.id;
 
     const [providers, connected] = await Promise.all([
       prisma.provider.findMany({ where: { isActive: true } }),
