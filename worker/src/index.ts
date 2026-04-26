@@ -26,7 +26,7 @@ const kafka = new Kafka({
 })
 
 async function runWorker() {
-    const consumer = kafka.consumer({ groupId: 'main-worker-v2' })
+    const consumer = kafka.consumer({ groupId: 'main-worker-v3' })
     const producer = kafka.producer();
 
     await producer.connect();
