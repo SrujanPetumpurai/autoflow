@@ -8,6 +8,7 @@ router.get("/available", async (req, res) => {
             id:true,
             name:true,
             image:true,
+            summary:true,
         }
     });
     res.json({

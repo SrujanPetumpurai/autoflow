@@ -55,15 +55,14 @@ async function main() {
     ],
     skipDuplicates: true
   })
-  const triggers = [
-    { id: "github_comment",  name: "GitHub - New Comment",      image: "https://github.com/favicon.ico" },
-    { id: "github_push",     name: "GitHub - New Push",         image: "https://github.com/favicon.ico" },
-    { id: "github_pr",       name: "GitHub - New Pull Request", image: "https://github.com/favicon.ico" },
-    { id: "stripe_payment",  name: "Stripe - New Payment",      image: "https://stripe.com/favicon.ico" },
-    { id: "gmail_received",  name: "Gmail - New Email",         image: "https://img.icons8.com/color/1200/gmail-new.jpg" },
-    { id: "schedule",        name: "Schedule",                  image: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png" },
+ const triggers = [
+  { id: "github_comment",  name: "GitHub - New Comment",      image: "https://github.com/favicon.ico",          summary: "Triggers when a new comment is added to an issue or pull request" },
+  { id: "github_push",     name: "GitHub - New Push",         image: "https://github.com/favicon.ico",          summary: "Triggers when code is pushed to a repository" },
+  { id: "github_pr",       name: "GitHub - New Pull Request", image: "https://github.com/favicon.ico",          summary: "Triggers when a new pull request is opened" },
+  { id: "stripe_payment",  name: "Stripe - New Payment",      image: "https://stripe.com/favicon.ico",          summary: "Triggers when a new payment is received in Stripe" },
+  { id: "gmail_received",  name: "Gmail - New Email",         image: "https://img.icons8.com/color/1200/gmail-new.jpg", summary: "Triggers when a new email arrives in your Gmail inbox" },
+  { id: "schedule",        name: "Schedule",                  image: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png", summary: "Triggers at a specified time or on a recurring schedule" },
 ]
-
   // Available Triggers
   await prisma.availableTrigger.createMany({data:triggers})
 
@@ -72,24 +71,26 @@ async function main() {
     data: {
       id:'email',
       name: 'Email',
-      image: 'https://cdn-icons-png.flaticon.com/512/561/561127.png'
+      image: 'https://cdn-icons-png.flaticon.com/512/561/561127.png',
+      summary: 'Send an email to any address'
     }
   })
 
   const slackAction = await prisma.availableAction.create({
     data: {
       name: 'Send Slack Message',
-      image: 'https://slack.com/favicon.ico'
+      image: 'https://slack.com/favicon.ico',
+      summary: 'Post a message to a Slack channel'
     }
   })
 
   const notionAction = await prisma.availableAction.create({
     data: {
       name: 'Create Notion Page',
-      image: 'https://notion.so/favicon.ico'
+      image: 'https://notion.so/favicon.ico',
+      summary: 'Create a new page in a Notion database'
     }
   })
-
   // Users
   const hashedPassword = await bcrypt.hash('password123', 10)
 

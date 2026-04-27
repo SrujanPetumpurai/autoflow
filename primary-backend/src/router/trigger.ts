@@ -10,7 +10,8 @@ router.get("/available", async (req, res) => {
         select:{
             id:true,
             name:true,
-            image:true
+            image:true,
+            summary:true,
         }
     });
     res.json({
