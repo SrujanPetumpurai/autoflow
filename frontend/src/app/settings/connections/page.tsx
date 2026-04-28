@@ -8,7 +8,8 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 import { Plug, Globe } from 'lucide-react'
-
+import BackArrow from '@/components/BackArrow'
+import { Appbar } from '@/components/Appbar'
 type Provider = {
   id: string
   name: string
@@ -51,7 +52,10 @@ export default function Connections() {
   const available = connections.filter((c) => !c.isConnected)
 
   return (
+    
     <div className="min-h-screen bg-background text-foreground">
+      <Appbar></Appbar>
+      <BackArrow></BackArrow>
       {/* Top accent line */}
       <div className="pointer-events-none fixed inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
