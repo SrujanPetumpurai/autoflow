@@ -3,7 +3,7 @@
 import { BACKEND_URL } from "@/app/config";
 import { Appbar } from "@/components/Appbar";
 import { Input } from "@/components/Input";
-import { ZapCell } from "@/components/ZapCell";
+import { ZapCell } from "@/components/Zapcell";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
