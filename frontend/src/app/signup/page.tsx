@@ -1,59 +1,127 @@
 "use client";
 import { Appbar } from "@/components/Appbar";
-import { CheckFeature } from "@/components/CheckFeature";
-import { Input } from "@/components/Input";
-import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useState } from "react";
 import { BACKEND_URL } from "../config";
 import { useRouter } from "next/navigation";
+import { CheckCircle2, Zap, Loader2 } from "lucide-react";
+
+const features = [
+    "Easy setup, no coding required",
+    "Free forever for core features",
+    "14-day trial of premium features & apps",
+];
 
 export default function() {
     const router = useRouter();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    return <div> 
-        <Appbar />
-        <div className="flex justify-center">
-            <div className="flex pt-8 max-w-4xl">
-                <div className="flex-1 pt-20 px-4">
-                    <div className="font-semibold text-3xl pb-4">
-                    Join millions worldwide who automate their work using Zapier.
-                    </div>
-                    <div className="pb-6 pt-4">
-                        <CheckFeature label={"Easy setup, no coding required"} />
-                    </div>
-                    <div className="pb-6">
-                        <CheckFeature label={"Free forever for core features"} />
-                    </div>
-                    <CheckFeature label={"14-day trial of premium features & apps"} />
+    return (
+        <div className="min-h-screen bg-slate-50">
+            <Appbar />
 
-                </div>
-                <div className="flex-1 pt-6 pb-6 mt-12 px-4 border rounded">
-                    <Input label={"Name"} onChange={e => {
-                        setName(e.target.value)
-                    }} type="text" placeholder="Your name"></Input>
-                    <Input onChange={e => {
-                        setEmail(e.target.value)
-                    }} label={"Email"} type="text" placeholder="Your Email"></Input>
-                    <Input onChange={e => {
-                        setPassword(e.target.value)
-                    }} label={"Password"} type="password" placeholder="Password"></Input>
+            <div className="flex min-h-[calc(100vh-57px)] items-center justify-center px-4 pb-6">
+                <div className="flex w-full max-w-4xl gap-16 items-center">
 
-                    <div className="pt-4">
-                        <PrimaryButton onClick={async () => {
-                            const res = await axios.post(`${BACKEND_URL}/api/v1/user/signup`, {
-                                username: email,
-                                password,
-                                name
-                            });
-                            router.push("/login");
-                        }} size="big">Get started free</PrimaryButton>
+                    <div className="flex-1 hidden md:block">
+                        <div className="mb-4 flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
+                                <Zap className="h-4 w-4 text-orange-500" />
+                            </div>
+                            <span className="text-sm font-semibold text-orange-500">Zapier</span>
+                        </div>
+
+                        <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-tight mb-6">
+                            Join millions worldwide who automate their work using Zapier.
+                        </h1>
+
+                        <div className="flex flex-col gap-4">
+                            {features.map((f) => (
+                                <div key={f} className="flex items-center gap-3">
+                                    <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-500" />
+                                    <span className="text-slate-600">{f}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
+
+\                    <div className="flex-1 w-full">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-1">Create your account</h2>
+                            <p className="text-sm text-slate-500 mb-6">Get started for free — no credit card required.</p>
+
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <Label className="text-sm font-medium text-slate-700">Name</Label>
+                                    <Input
+                                        type="text"
+                                        placeholder="Your name"
+                                        onChange={e => setName(e.target.value)}
+                                        className="rounded-lg border-slate-200 focus-visible:ring-orange-400"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-1.5">
+                                    <Label className="text-sm font-medium text-slate-700">Email</Label>
+                                    <Input
+                                        type="text"
+                                        placeholder="you@example.com"
+                                        onChange={e => setEmail(e.target.value)}
+                                        className="rounded-lg border-slate-200 focus-visible:ring-orange-400"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-1.5">
+                                    <Label className="text-sm font-medium text-slate-700">Password</Label>
+                                    <Input
+                                        type="password"
+                                        placeholder="Min. 8 characters"
+                                        onChange={e => setPassword(e.target.value)}
+                                        className="rounded-lg border-slate-200 focus-visible:ring-orange-400"
+                                    />
+                                </div>
+
+                                <Button
+                                    disabled={loading}
+                                    onClick={async () => {
+                                        setLoading(true);
+                                        try {
+                                            await axios.post(`${BACKEND_URL}/api/v1/user/signup`, {
+                                                username: email,
+                                                password,
+                                                name
+                                            });
+                                            router.push("/login");
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }}
+                                    className="w-full rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-5 transition-all hover:-translate-y-0.5 hover:shadow-md mt-2"
+                                >
+                                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Get started free"}
+                                </Button>
+
+                                <p className="text-center text-xs text-slate-400">
+                                    Already have an account?{" "}
+                                    <span
+                                        className="text-orange-500 font-medium cursor-pointer hover:underline"
+                                        onClick={() => router.push("/login")}
+                                    >
+                                        Log in
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
+    );
 }
