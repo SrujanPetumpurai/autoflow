@@ -87,22 +87,24 @@ router.get("/:zapId", authMiddleware, async (req, res) => {
         },
         include: {
             actions: {
-               include: {
+                include: {
                     type: true
-               }
+                }
             },
             trigger: {
                 include: {
                     type: true
                 }
+            },
+            zapRuns: {
+                orderBy: {
+                    id: "desc"
+                }
             }
         }
     });
 
-    return res.json({
-        zap
-    })
-
-})
+    return res.json({ zap });
+});
 
 export const zapRouter = router;

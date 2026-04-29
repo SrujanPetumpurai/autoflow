@@ -8,6 +8,7 @@ import { googleRouter } from "./router/google.js";
 import { connectedAccount } from "./router/connectedAccounts.js";
 import { providerRouter } from "./router/provider.js";
 import { gmailRouter } from "./router/gmail.js";
+import { zapRunRouter } from "./router/zapRun.js";
 const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
@@ -31,7 +32,7 @@ app.use('/api/v1/connectedAccount',connectedAccount)
 app.use("/api/v1/action", actionRouter);
 app.use("/api/v1/google",googleRouter)
 app.use("/api/v1/gmail",gmailRouter)
-
+app.use("/api/v1/zapRun",zapRunRouter)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT);
 console.log(`Listening on ${PORT}`);
