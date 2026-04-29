@@ -106,5 +106,33 @@ router.get("/:zapId", authMiddleware, async (req, res) => {
 
     return res.json({ zap });
 });
+router.post("/:zapId/action", authMiddleware, async (req, res) => {
+    //@ts-ignore
+    const userId = req.id;
+    const zapId = req.params.zapId as string;
+    const { availableActionId, sortingOrder } = req.body;
 
+    // make sure this zap belongs to the user
+    const zap = await prisma.zap.findFirst({
+        where: { id: zapId, userId }
+    });
+
+    if (!zap) {
+        return res.status(404).json({ message: "Zap not found" });
+    }
+
+    const action = await prisma.action.create({
+        data: {
+            zapId,
+            actionId: availableActionId,
+            sortingOrder: sortingOrder ?? 0,
+            metadata: {}
+        },
+        include: {
+            type: true
+        }
+    });
+
+    return res.json({ action });
+});
 export const zapRouter = router;

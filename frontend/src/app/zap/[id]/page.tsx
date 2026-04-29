@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   ArrowRight,
   CalendarDays,
+  Plus,
 } from "lucide-react";
 import {
   Dialog,
@@ -26,6 +27,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type AvailableTrigger = { id: string; name: string; image: string };
 type AvailableAction = { id: string; name: string; image: string };
@@ -65,6 +72,9 @@ export default function ZapDetailPage() {
   const [toggling, setToggling] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addActionOpen, setAddActionOpen] = useState(false);
+  const [availableActions, setAvailableActions] = useState<{ id: string; name: string; image: string; summary?: string }[]>([]);
+  const [addingAction, setAddingAction] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
 
   function showToast(type: "success" | "error", message: string) {
@@ -73,12 +83,17 @@ export default function ZapDetailPage() {
   }
 
   useEffect(() => {
-  axios
-    .get(`${BACKEND_URL}/api/v1/zap/${id}`, { headers: authHeaders() })
-    .then((res) => setZap(res.data.zap))
-    .catch(() => showToast("error", "Failed to load zap."))
-    .finally(() => setLoading(false));
-}, [id]);
+    Promise.all([
+      axios.get(`${BACKEND_URL}/api/v1/zap/${id}`, { headers: authHeaders() }),
+      axios.get(`${BACKEND_URL}/api/v1/action/available`, { headers: authHeaders() }),
+    ])
+      .then(([zapRes, actionsRes]) => {
+        setZap(zapRes.data.zap);
+        setAvailableActions(actionsRes.data.availableActions ?? []);
+      })
+      .catch(() => showToast("error", "Failed to load zap."))
+      .finally(() => setLoading(false));
+  }, [id]);
 
   async function handleToggle() {
     if (!zap) return;
@@ -95,6 +110,31 @@ export default function ZapDetailPage() {
       showToast("error", "Failed to toggle zap.");
     } finally {
       setToggling(false);
+    }
+  }
+
+  async function handleAddAction(availableActionId: string, availableActionName: string, availableActionImage: string) {
+    if (!zap) return;
+    setAddingAction(true);
+    try {
+      const newSortingOrder = zap.actions.length + 1;
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/zap/${id}/action`,
+        { availableActionId, sortingOrder: newSortingOrder },
+        { headers: authHeaders() }
+      );
+      const newAction: Action = res.data.action ?? {
+        id: res.data.id ?? crypto.randomUUID(),
+        sortingOrder: newSortingOrder,
+        type: { id: availableActionId, name: availableActionName, image: availableActionImage },
+      };
+      setZap((z) => z ? { ...z, actions: [...z.actions, newAction] } : z);
+      setAddActionOpen(false);
+      showToast("success", `${availableActionName} action added.`);
+    } catch {
+      showToast("error", "Failed to add action.");
+    } finally {
+      setAddingAction(false);
     }
   }
 
@@ -271,6 +311,17 @@ export default function ZapDetailPage() {
                 <p className="text-sm text-slate-400">No actions configured</p>
               </div>
             )}
+
+            {/* Add action */}
+            <div className="flex flex-col items-center">
+              <div className="h-6 w-px bg-slate-200" />
+              <button
+                onClick={() => setAddActionOpen(true)}
+                className="group flex h-9 w-9 items-center justify-center rounded-full border-2 border-dashed border-slate-300 bg-white text-slate-400 transition-all duration-200 hover:border-orange-400 hover:text-orange-500 hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -318,6 +369,44 @@ export default function ZapDetailPage() {
           )}
         </section>
       </main>
+
+      {/* Add action dialog */}
+      <Dialog open={addActionOpen} onOpenChange={setAddActionOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mb-1 flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50 border border-slate-200">
+                <Zap className="h-3.5 w-3.5 text-slate-500" />
+              </div>
+              <DialogTitle className="text-base">Add an action</DialogTitle>
+            </div>
+          </DialogHeader>
+          <Accordion type="single" collapsible className="max-h-96 overflow-y-auto">
+            {availableActions.map(({ id: aId, name, image, summary }) => (
+              <AccordionItem key={aId} value={aId}>
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-3">
+                    <img className="h-5 w-5 rounded" src={image} alt={name} />
+                    <span className="text-sm font-medium">{name}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-3 pl-8">
+                  {summary && <p className="text-sm italic text-muted-foreground">{summary}</p>}
+                  <Button
+                    className="w-fit self-end"
+                    variant="outline"
+                    size="sm"
+                    disabled={addingAction}
+                    onClick={() => handleAddAction(aId, name, image)}
+                  >
+                    {addingAction ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Add"}
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete dialog */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>

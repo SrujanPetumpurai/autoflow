@@ -45,6 +45,7 @@ model Zap {
   trigger Trigger?
   actions Action[]
   zapRuns ZapRun[]
+  isActive   Boolean  @default(true) 
   user    User     @relation(fields: [userId], references: [id])
   created_at DateTime @default(now())
 }
