@@ -31,14 +31,14 @@ export default function() {
                     {/* Left — marketing copy */}
                     <div className="flex-1 hidden md:block">
                         <div className="mb-4 flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
-                                <Zap className="h-4 w-4 text-orange-500" />
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-50">
+                                <Zap className="h-4 w-4 text-green-700" />
                             </div>
-                            <span className="text-sm font-semibold text-orange-500">Zapier</span>
+                            <span className="text-sm font-semibold text-green-700">Autoflow</span>
                         </div>
 
                         <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-tight mb-6">
-                            Join millions worldwide who automate their work using Zapier.
+                            Join millions worldwide who automate their work using Autoflow.
                         </h1>
 
                         <div className="flex flex-col gap-4">
@@ -55,7 +55,7 @@ export default function() {
                     <div className="flex-1 w-full">
                         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                             <h2 className="text-xl font-semibold text-slate-900 mb-1">Welcome back</h2>
-                            <p className="text-sm text-slate-500 mb-6">Log in to your Zapier account.</p>
+                            <p className="text-sm text-slate-500 mb-6">Log in to your Autoflow account.</p>
 
                             <div className="flex flex-col gap-4">
                                 <div className="flex flex-col gap-1.5">
@@ -64,7 +64,7 @@ export default function() {
                                         type="text"
                                         placeholder="you@example.com"
                                         onChange={e => setEmail(e.target.value)}
-                                        className="rounded-lg border-slate-200 focus-visible:ring-orange-400"
+                                        className="rounded-lg border-slate-200 focus-visible:ring-green-600"
                                     />
                                 </div>
 
@@ -74,7 +74,7 @@ export default function() {
                                         type="password"
                                         placeholder="Your password"
                                         onChange={e => setPassword(e.target.value)}
-                                        className="rounded-lg border-slate-200 focus-visible:ring-orange-400"
+                                        className="rounded-lg border-slate-200 focus-visible:ring-green-600"
                                     />
                                 </div>
 
@@ -93,7 +93,7 @@ export default function() {
                                             setLoading(false);
                                         }
                                     }}
-                                    className="w-full rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-5 transition-all hover:-translate-y-0.5 hover:shadow-md mt-2"
+                                    className="w-full rounded-full bg-green-700 hover:bg-green-800 text-white font-semibold py-5 transition-all hover:-translate-y-0.5 hover:shadow-md mt-2"
                                 >
                                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Login"}
                                 </Button>
@@ -101,7 +101,7 @@ export default function() {
                                 <p className="text-center text-xs text-slate-400">
                                     Don't have an account?{" "}
                                     <span
-                                        className="text-orange-500 font-medium cursor-pointer hover:underline"
+                                        className="text-green-700 font-medium cursor-pointer hover:underline"
                                         onClick={() => router.push("/signup")}
                                     >
                                         Sign up free

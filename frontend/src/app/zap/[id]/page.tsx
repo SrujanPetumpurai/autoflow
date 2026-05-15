@@ -205,7 +205,7 @@ export default function ZapDetailPage() {
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
             <p className="mb-1 text-xs font-medium uppercase tracking-widest text-orange-500">
-              zap
+              flow
             </p>
             <h1 className="text-xl font-medium tracking-tight text-slate-900 font-mono">
               {zap.id.slice(0, 8)}…
@@ -331,7 +331,7 @@ export default function ZapDetailPage() {
             <div className="flex items-center gap-2.5">
               <Clock className="h-4 w-4 text-orange-500" />
               <span className="text-sm font-medium text-slate-800">
-                Zap runs
+                Flow runs
               </span>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 font-mono text-xs text-slate-600">
@@ -344,7 +344,7 @@ export default function ZapDetailPage() {
               <Clock className="h-8 w-8 text-slate-200" />
               <p className="text-sm text-slate-400">No runs yet</p>
               <p className="text-xs text-slate-300">
-                Runs will appear here once this zap fires.
+                Runs will appear here once this flow fires.
               </p>
             </div>
           ) : (
@@ -415,9 +415,9 @@ export default function ZapDetailPage() {
             <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 bg-red-50">
               <Trash2 className="h-4 w-4 text-red-500" />
             </div>
-            <DialogTitle className="text-base">Delete this zap?</DialogTitle>
+            <DialogTitle className="text-base">Delete this flow?</DialogTitle>
             <DialogDescription className="text-sm text-slate-400">
-              This will permanently delete the zap and all its run history.
+              This will permanently delete the flow and all its run history.
               This can't be undone.
             </DialogDescription>
           </DialogHeader>

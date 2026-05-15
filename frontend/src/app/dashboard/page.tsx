@@ -58,11 +58,11 @@ export default function() {
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <p className="text-[11px] font-medium uppercase tracking-widest text-slate-400 mb-1">Automation</p>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Zaps</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Flows</h1>
                     </div>
                     <Button
                         onClick={() => router.push("/zap/create")}
-                        className="rounded-full bg-orange-500 hover:bg-orange-600 text-white px-5 gap-2 transition-all hover:-translate-y-0.5 hover:shadow-md"
+                        className="rounded-full bg-green-700 hover:bg-green-800 text-white px-5 gap-2 transition-all hover:-translate-y-0.5 hover:shadow-md"
                     >
                         <Plus className="h-4 w-4" />
                         Create
@@ -92,16 +92,16 @@ export default function() {
                 {/* Table */}
                 {!loading && zaps.length === 0 && (
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white py-20 text-center shadow-sm">
-                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50">
-                            <Zap className="h-5 w-5 text-orange-500" />
+                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
+                            <Zap className="h-5 w-5 text-green-700" />
                         </div>
-                        <p className="text-sm font-medium text-slate-800">No Zaps yet</p>
+                        <p className="text-sm font-medium text-slate-800">No Flows yet</p>
                         <p className="mt-1 text-sm text-slate-400">Create your first automation to get started.</p>
                         <Button
                             onClick={() => router.push("/zap/create")}
-                            className="mt-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white px-5"
+                            className="mt-5 rounded-full bg-green-700 hover:bg-green-800 text-white px-5"
                         >
-                            Create a Zap
+                            Create a flow
                         </Button>
                     </div>
                 )}
@@ -174,7 +174,7 @@ function ZapRow({ zap, isLast }: { zap: Zap; isLast: boolean }) {
                 </code>
                 <button
                     onClick={copyUrl}
-                    className="flex-shrink-0 text-slate-400 hover:text-slate-700 transition-colors"
+                    className="flex-shrink-0 text-slate-400 hover:text-green-700 transition-colors"
                     title="Copy URL"
                 >
                     <Copy className="h-3.5 w-3.5" />
@@ -187,7 +187,7 @@ function ZapRow({ zap, isLast }: { zap: Zap; isLast: boolean }) {
                     size="sm"
                     variant="outline"
                     onClick={() => router.push("/zap/" + zap.id)}
-                    className="rounded-full px-3 text-xs font-medium transition-all hover:-translate-y-0.5 hover:shadow-sm gap-1"
+                    className="rounded-full px-3 text-xs font-medium transition-all hover:-translate-y-0.5 hover:shadow-sm gap-1 hover:text-green-700 hover:border-green-700"
                 >
                     Open
                     <ArrowRight className="h-3 w-3" />

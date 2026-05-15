@@ -394,7 +394,7 @@ export default function ProfilePage() {
             <div>
               <p className="text-sm font-medium text-slate-700">Delete account</p>
               <p className="text-xs text-slate-400">
-                Permanently delete your account and all your zaps. This cannot be undone.
+                Permanently delete your account and all your flows. This cannot be undone.
               </p>
             </div>
             <Button
@@ -417,7 +417,7 @@ export default function ProfilePage() {
             </div>
             <DialogTitle className="text-base">Delete account?</DialogTitle>
             <DialogDescription className="text-sm text-slate-400">
-              This will permanently delete your account and all associated zaps.
+              This will permanently delete your account and all associated flows.
               There's no way to recover this data.
             </DialogDescription>
           </DialogHeader>

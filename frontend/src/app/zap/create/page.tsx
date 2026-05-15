@@ -3,7 +3,7 @@
 import { BACKEND_URL } from "@/app/config";
 import { Appbar } from "@/components/Appbar";
 import { Input } from "@/components/Input";
-import { ZapCell } from "@/components/Zapcell";
+import { FlowCell } from "@/components/Flowcell";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -57,10 +57,10 @@ export default function() {
             <Appbar />
 
             {/* Top bar */}
-            <div className="flex items-center justify-between  border-slate-200 bg-white px-6 py-3 ">
+            <div className="flex items-center justify-between border-slate-200 bg-white px-6 py-3">
                 <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-orange-500" />
-                    <span className="text-sm font-medium text-slate-600">New Zap</span>
+                    <Zap className="h-4 w-4 text-green-700" />
+                    <span className="text-sm font-medium text-slate-600">New Flow</span>
                 </div>
                 <Button
                     onClick={async () => {
@@ -77,7 +77,7 @@ export default function() {
                         });
                         router.push("/dashboard");
                     }}
-                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    className="bg-green-700 hover:bg-green-800 text-white rounded-full px-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 >
                     Publish
                 </Button>
@@ -90,7 +90,7 @@ export default function() {
                 <div className="flex flex-col items-center gap-0">
 
                     {/* Trigger */}
-                    <ZapCell
+                    <FlowCell
                         onClick={() => setSelectedModalIndex(1)}
                         name={selectedTrigger?.name ?? "Trigger"}
                         index={1}
@@ -103,7 +103,7 @@ export default function() {
                                 <div key={action.index} className="flex flex-col items-center">
                                     {/* Vertical line */}
                                     <div className="h-8 w-px bg-slate-300" />
-                                    <ZapCell
+                                    <FlowCell
                                         onClick={() => setSelectedModalIndex(action.index)}
                                         name={action.availableActionName || "Action"}
                                         index={action.index}
@@ -123,7 +123,7 @@ export default function() {
                                             metadata: {}
                                         }])
                                     }}
-                                    className="group flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-slate-300 bg-white text-slate-400 shadow-sm transition-all duration-200 hover:border-orange-400 hover:text-orange-500 hover:-translate-y-0.5 hover:shadow-md"
+                                    className="group flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed border-slate-300 bg-white text-slate-400 shadow-sm transition-all duration-200 hover:border-green-600 hover:text-green-700 hover:-translate-y-0.5 hover:shadow-md"
                                 >
                                     <Plus className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
                                 </button>
@@ -179,8 +179,8 @@ function Modal({ index, onSelect, availableItems }: {
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <div className="flex items-center gap-2">
-                        <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${isTrigger ? "bg-orange-50" : "bg-slate-50"}`}>
-                            <Zap className={`h-3.5 w-3.5 ${isTrigger ? "text-orange-500" : "text-slate-500"}`} />
+                        <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${isTrigger ? "bg-green-50" : "bg-slate-50"}`}>
+                            <Zap className={`h-3.5 w-3.5 ${isTrigger ? "text-green-700" : "text-slate-500"}`} />
                         </div>
                         <DialogTitle className="text-base">
                             Select {isTrigger ? "Trigger" : "Action"}
@@ -243,7 +243,7 @@ function EmailSelector({ setMetadata }: { setMetadata: (params: any) => void }) 
             <Input label="To" type="text" placeholder="recipient@email.com" onChange={(e) => setEmail(e.target.value)} />
             <Input label="Body" type="text" placeholder="Message body..." onChange={(e) => setBody(e.target.value)} />
             <Button
-                className="w-fit self-end bg-orange-500 hover:bg-orange-600 text-white"
+                className="w-fit self-end bg-green-700 hover:bg-green-800 text-white"
                 onClick={() => setMetadata({ email, body })}
             >
                 Confirm
@@ -261,7 +261,7 @@ function SolanaSelector({ setMetadata }: { setMetadata: (params: any) => void })
             <Input label="To" type="text" placeholder="Wallet address" onChange={(e) => setAddress(e.target.value)} />
             <Input label="Amount" type="text" placeholder="0.00 SOL" onChange={(e) => setAmount(e.target.value)} />
             <Button
-                className="w-fit self-end bg-orange-500 hover:bg-orange-600 text-white"
+                className="w-fit self-end bg-green-700 hover:bg-green-800 text-white"
                 onClick={() => setMetadata({ amount, address })}
             >
                 Confirm

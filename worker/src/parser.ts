@@ -1,4 +1,4 @@
- export function parse(text:string,values:any,startDelimeter='{',endDelimeter="}"){
+ export function    parse(text:string,values:any,startDelimeter='{',endDelimeter="}"){
         var startIndex =0;
         var endIndex = 1;
         var finalString = '';
