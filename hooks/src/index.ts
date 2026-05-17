@@ -32,6 +32,7 @@
             return res.status(400).json({message:"Unsupported trigger type"})
         }
         const result = normaliser(body)
+                console.log(`this is req.body, ${result}`)
         try{
             await client.$transaction(async (tx:Prisma.TransactionClient) => {
             const run = await tx.zapRun.create({
