@@ -70,7 +70,7 @@ router.get('/callback',async(req,res)=>{
                 }
             })
             return(
-                res.redirect('https://zapier-clone-rho.vercel.app/zap/create') 
+                res.redirect('https://autoflow-mu.vercel.app/zap/create') 
         )
         }catch(e){
             console.error(e);
