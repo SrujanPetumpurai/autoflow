@@ -5,7 +5,7 @@ import { prisma } from "./lib/db.js";
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  'http://localhost:3000/api/v1/gmail/callback' 
+  'https://zapier-clone.onrender.com/api/v1/gmail/callback' 
 );
 
 export async function sendEmail(to:string,body:string,userId:number|undefined){
@@ -53,6 +53,7 @@ export async function sendEmail(to:string,body:string,userId:number|undefined){
                     raw: encodedMessage,
                 },
             });
+            console.log("Worker email hit")
     
 }catch(e){
     console.log(e)
