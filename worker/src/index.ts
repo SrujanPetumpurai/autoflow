@@ -106,10 +106,11 @@ async function runWorker() {
                 return
             }
 
-            const metadata = zapRun.metadata as JsonObject
+            const metadata = typeof zapRun.metadata === 'string' 
+                            ? JSON.parse(zapRun.metadata) 
+                            : zapRun.metadata
             const userId = zapRun.zap.userId
-            console.log("metadata:", JSON.stringify(metadata))
-console.log("type:", typeof metadata)
+            
 
             console.log(`Executing stage ${stage}, actionId: ${currentAction.actionId}`)
 
