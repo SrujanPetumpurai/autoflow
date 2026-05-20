@@ -1,4 +1,5 @@
- export function    parse(text:string,values:any,startDelimeter='{',endDelimeter="}"){
+ //text = "{to}", values={"to": "nirvanpetumpuri@gmail.com","amount": 80,"name": "nirvan"}
+export function parse(text:string,values:any,startDelimeter='{',endDelimeter="}"){
         var startIndex =0;
         var endIndex = 1;
         var finalString = '';
@@ -10,16 +11,8 @@
                     endPoint++
                 }
                 let stringHoldingValue = text.slice(startPoint,endPoint)
-                const keys = stringHoldingValue.split('.');
-                let localValues = {
-                    ...values
-                }   
-                for(const key of keys){
-                    if(typeof localValues=="string"){
-                        localValues = JSON.parse(localValues);
-                    }
-                    localValues = localValues[key]
-                }
+                //strHV = to 
+                let localValues = values[stringHoldingValue]                
                 finalString += localValues;
                 startIndex = endPoint + 1;
                 endIndex = endPoint + 2;
